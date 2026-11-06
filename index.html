@@ -1,0 +1,622 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Minecraft Clicker 2.0</title>
+<style>
+:root{
+--bg:#101610;--panel:#202c20;--border:#496149;
+--green:#65b94b;--gold:#e9bd46;--text:#f1f5e9;
+}
+*{box-sizing:border-box}
+body{
+margin:0;background:var(--bg);color:var(--text);
+font-family:Arial,sans-serif;padding-bottom:76px;
+}
+header{
+background:#29452a;text-align:center;padding:17px;
+border-bottom:4px solid #668f43;
+}
+header h1{margin:0;font-size:23px}
+header small{color:#c4d7bb}
+.stats{
+display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;
+}
+.stat,.panel{
+background:var(--panel);border:1px solid var(--border);
+border-radius:9px;padding:12px;
+}
+.stat{text-align:center}
+.stat small{color:#b6c6b0}
+.stat strong{display:block;font-size:20px;margin-top:5px}
+main{padding:0 10px}
+.panel{margin-bottom:11px}
+h2{font-size:17px;margin:0 0 12px}
+.muted{font-size:12px;color:#b6c6b0}
+button{cursor:pointer;font-weight:bold}
+.primary{
+width:100%;border:0;border-radius:7px;padding:14px;
+background:#58a943;color:white;font-size:16px;
+box-shadow:0 4px #2d612b;
+}
+.primary:active{transform:translateY(3px);box-shadow:none}
+.item{
+display:flex;justify-content:space-between;align-items:center;
+gap:8px;background:#293a29;padding:11px;
+margin:8px 0;border-radius:7px;border:1px solid #455c45;
+}
+.item small{display:block;color:#b8c8b0;margin-top:5px}
+.item button,.action{
+border:0;border-radius:6px;padding:10px;
+background:#579d42;color:white;min-width:83px;
+}
+button:disabled{opacity:.35}
+.tabs{
+position:fixed;bottom:0;left:0;right:0;
+display:flex;overflow-x:auto;background:#18251a;
+border-top:2px solid #496149;z-index:5;
+}
+.tabs button{
+min-width:68px;flex:1;background:none;color:white;
+border:0;padding:12px 4px;font-size:11px;
+}
+.tabs button.active{background:#365a34;color:#c9ffae}
+.tab{display:none}
+.tab.active{display:block}
+.bar{
+height:13px;background:#101510;border-radius:10px;
+overflow:hidden;margin:8px 0;
+}
+.bar div{height:100%;background:#65c94d;width:0%;transition:.2s}
+.mine{text-align:center}
+.mine h2{text-align:left}
+.block{
+width:170px;height:170px;margin:18px auto;
+border:5px solid #090d09;box-shadow:inset -9px -9px #0005,5px 7px #000;
+position:relative;cursor:pointer;touch-action:manipulation;
+}
+.block:active{transform:scale(.95)}
+/* TEXTURAS PIXELADAS */
+.grass{
+background:
+linear-gradient(90deg,transparent 40%,#7bc64d 40% 50%,transparent 50%),
+linear-gradient(0deg,#76502e 0 67%,transparent 67%),
+repeating-linear-gradient(90deg,#4e9134 0 12px,#69ad42 12px 24px);
+}
+.dirt{
+background:
+repeating-linear-gradient(0deg,transparent 0 15px,#704627 15px 20px),
+repeating-linear-gradient(90deg,#85562f 0 13px,#75492a 13px 25px);
+}
+.stone{
+background:
+repeating-linear-gradient(0deg,transparent 0 18px,#777 18px 21px),
+repeating-linear-gradient(90deg,#777 0 20px,#888 20px 40px);
+}
+.sand{
+background:repeating-linear-gradient(0deg,#d9c078 0 8px,#c8ae65 8px 12px,#e6d18b 12px 20px);
+}
+.wood{
+background:repeating-linear-gradient(90deg,#69401e 0 10px,#9c642f 10px 20px,#784b26 20px 30px);
+}
+.iron{
+background:
+radial-gradient(circle at 25% 30%,#d6a477 0 8px,transparent 9px),
+radial-gradient(circle at 70% 75%,#d6a477 0 9px,transparent 10px),
+repeating-linear-gradient(0deg,#777 0 20px,#888 20px 40px);
+}
+.gold{
+background:
+radial-gradient(circle at 25% 25%,#ffe17b 0 10px,transparent 11px),
+radial-gradient(circle at 70% 70%,#ffdc54 0 12px,transparent 13px),
+repeating-linear-gradient(0deg,#665638 0 20px,#777 20px 40px);
+}
+.diamond{
+background:
+radial-gradient(circle at 30% 30%,#6cfff2 0 10px,transparent 11px),
+radial-gradient(circle at 70% 65%,#22c9d6 0 12px,transparent 13px),
+repeating-linear-gradient(0deg,#626e70 0 20px,#747e80 20px 40px);
+}
+.redstone{
+background:
+radial-gradient(circle at 30% 30%,#ff3434 0 8px,transparent 9px),
+radial-gradient(circle at 70% 70%,#a90000 0 11px,transparent 12px),
+repeating-linear-gradient(0deg,#646464 0 20px,#777 20px 40px);
+}
+.emerald{
+background:
+radial-gradient(circle at 25% 30%,#68ff86 0 10px,transparent 11px),
+radial-gradient(circle at 70% 70%,#20a954 0 12px,transparent 13px),
+repeating-linear-gradient(0deg,#666 0 20px,#777 20px 40px);
+}
+.obsidian{
+background:repeating-linear-gradient(45deg,#20162e 0 12px,#403052 12px 23px,#171122 23px 35px);
+}
+.netherrack{
+background:radial-gradient(circle at 25% 25%,#d34836 0 7px,transparent 8px),
+radial-gradient(circle at 75% 70%,#a32f26 0 10px,transparent 11px),
+#632d29;
+}
+.endstone{
+background:repeating-linear-gradient(45deg,#c6bd80 0 12px,#e2d49b 12px 24px);
+}
+.texture-name{font-size:13px;color:#c4d3ba}
+.select{
+width:100%;padding:11px;background:#273a29;color:white;
+border:1px solid #668766;border-radius:7px;
+}
+.overlay{
+position:fixed;inset:0;background:#080d08f5;
+z-index:20;display:flex;align-items:center;
+justify-content:center;padding:16px;overflow:auto;
+}
+.modal{
+width:100%;max-width:440px;background:#213122;
+border:2px solid #638650;border-radius:12px;padding:18px;
+}
+.mode{
+display:block;width:100%;padding:12px;margin:8px 0;
+background:#304532;border:1px solid #60785b;
+border-radius:7px;color:white;text-align:left;
+}
+.mode:active{background:#547b48}
+#toast{
+position:fixed;top:15px;left:50%;transform:translateX(-50%);
+background:#e5c24c;color:#222;padding:12px;
+border-radius:7px;display:none;z-index:30;font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div id="start" class="overlay">
+<div class="modal">
+<h1>MINECRAFT CLICKER</h1>
+<p>Escolha sua dificuldade. Ela determinará sua jornada inteira.</p>
+<div id="difficulty"></div>
+</div>
+</div>
+
+<header>
+<h1>MINECRAFT CLICKER 2.0</h1>
+<small id="difficultyLabel">Escolha sua dificuldade</small>
+</header>
+
+<div class="stats">
+<div class="stat"><small>Minérios</small><strong id="coins">0</strong></div>
+<div class="stat"><small>Por segundo</small><strong id="cps">0</strong></div>
+<div class="stat"><small>Força de clique</small><strong id="power">1</strong></div>
+<div class="stat"><small>Nível</small><strong id="level">1</strong></div>
+</div>
+
+<main>
+<section class="panel mine">
+<h2>ÁREA DE MINERAÇÃO</h2>
+<div class="texture-name" id="biomeName">Floresta</div>
+<div id="block" class="block grass" onclick="mine()"></div>
+<div id="blockName">Bloco de grama</div>
+<button class="primary" onclick="mine()">MINERAR</button>
+<div class="bar"><div id="xpbar"></div></div>
+<small id="xptext">XP 0 / 100</small>
+</section>
+
+<section class="panel">
+<h2>INFORMAÇÕES</h2>
+<div class="muted" id="stats"></div>
+</section>
+
+<div id="shop" class="tab active">
+<section class="panel">
+<h2>FERRAMENTAS</h2>
+<div id="tools"></div>
+</section>
+<section class="panel">
+<h2>MELHORIAS</h2>
+<div id="upgrades"></div>
+</section>
+<section class="panel">
+<h2>MINERADORES AUTOMÁTICOS</h2>
+<div id="miners"></div>
+</section>
+</div>
+
+<div id="biomes" class="tab">
+<section class="panel"><h2>DIMENSÕES E BIOMAS</h2><div id="biomeList"></div></section>
+</div>
+
+<div id="bosses" class="tab">
+<section class="panel">
+<h2>CHEFES</h2>
+<p class="muted">Ataque os chefes até derrotá-los. Cada ataque consome sua força de mineração.</p>
+<div id="bossList"></div>
+</section>
+</div>
+
+<div id="quests" class="tab">
+<section class="panel"><h2>MISSÕES</h2><div id="questList"></div></section>
+</div>
+
+<div id="achievements" class="tab">
+<section class="panel"><h2>CONQUISTAS</h2><div id="achievementList"></div></section>
+</div>
+
+<div id="prestige" class="tab">
+<section class="panel">
+<h2>PRESTÍGIO</h2>
+<p>Troque seu progresso por cristais permanentes.</p>
+<strong id="crystals">0</strong> cristais
+<p id="prestigeInfo"></p>
+<button class="primary" onclick="prestige()">RENASCER</button>
+</section>
+</div>
+
+<div id="settings" class="tab">
+<section class="panel">
+<h2>CONFIGURAÇÕES</h2>
+<button class="action" onclick="save()">SALVAR</button>
+<p><button class="action" onclick="exportSave()">EXPORTAR</button></p>
+<p><button class="action" onclick="importSave()">IMPORTAR</button></p>
+<p><button class="action" onclick="changeDifficulty()">MUDAR DIFICULDADE</button></p>
+<p><button class="action" style="background:#a43b35" onclick="resetGame()">REINICIAR</button></p>
+</section>
+<section class="panel"><h2>HISTÓRICO</h2><div id="logs" class="muted"></div></section>
+</div>
+</main>
+
+<nav class="tabs">
+<button class="active" onclick="tab('shop',this)">LOJA</button>
+<button onclick="tab('biomes',this)">BIOMAS</button>
+<button onclick="tab('bosses',this)">CHEFES</button>
+<button onclick="tab('quests',this)">MISSÕES</button>
+<button onclick="tab('achievements',this)">CONQUISTAS</button>
+<button onclick="tab('prestige',this)">PRESTÍGIO</button>
+<button onclick="tab('settings',this)">OPÇÕES</button>
+</nav>
+<div id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.floor(n).toLocaleString("pt-BR");
+
+const modes={
+ ultra:{name:"Ultra fácil",price:.3,income:3,boss:.3,xp:3},
+ easy:{name:"Fácil",price:.65,income:1.7,boss:.7,xp:1.5},
+ normal:{name:"Normal",price:1,income:1,boss:1,xp:1},
+ hard:{name:"Difícil",price:1.8,income:.8,boss:1.8,xp:.8},
+ extreme:{name:"Ultra difícil",price:3.5,income:.55,boss:4,xp:.6},
+ infernal:{name:"Infernal",price:7,income:.35,boss:9,xp:.4}
+};
+
+const tools=[
+ ["Madeira",2,0,0],
+ ["Pedra",5,0,0],
+ ["Ferro",15,0,0],
+ ["Ouro",40,0,0],
+ ["Diamante",120,0,0],
+ ["Netherita",400,0,0],
+ ["Picareta ancestral",1500,0,0],
+ ["Picareta cósmica",6000,0,0]
+];
+const upgrades=[
+ ["Braço forte","+5 de força",5,250],
+ ["Minerador experiente","+25 de força",25,1200],
+ ["Força titânica","+100 de força",100,7000],
+ ["Poder ancestral","+500 de força",500,40000],
+ ["Poder cósmico","+2500 de força",2500,250000],
+ ["Energia infinita","+10000 de força",10000,1500000]
+];
+const miners=[
+ ["Minerador iniciante",1,100],
+ ["Mineiro profissional",5,600],
+ ["Escavadeira",25,3500],
+ ["Máquina de mineração",120,20000],
+ ["Fábrica de minérios",600,120000],
+ ["Robô minerador",3000,750000],
+ ["Portal de mineração",15000,5000000]
+];
+
+const biomes=[
+ ["Floresta","grass",0,1],
+ ["Deserto","sand",1500,2],
+ ["Montanhas","stone",8000,4],
+ ["Mina de ferro","iron",35000,8],
+ ["Mina de ouro","gold",150000,15],
+ ["Caverna de diamante","diamond",600000,30],
+ ["Caverna de esmeralda","emerald",2500000,60],
+ ["Nether","netherrack",10000000,120],
+ ["Fortaleza de obsidiana","obsidian",50000000,250],
+ ["Dimensão do End","endstone",250000000,600]
+];
+
+const bosses=[
+ ["Guardião da floresta",500,500],
+ ["Rei do deserto",5000,5000],
+ ["Golem das montanhas",50000,50000],
+ ["Titã de ferro",500000,500000],
+ ["Dragão de ouro",5000000,5000000],
+ ["Guardião de diamante",50000000,50000000],
+ ["Senhor do Nether",500000000,500000000],
+ ["Dragão do End",5000000000,5000000000],
+ ["Deus ancestral",50000000000,50000000000]
+];
+
+let game={
+difficulty:null,coins:0,total:0,clicks:0,xp:0,level:1,
+crystals:0,prestiges:0,biome:0,unlocked:[0],
+tools:Array(8).fill(0),upgrades:Array(6).fill(0),
+miners:Array(7).fill(0),bosses:[],bossHP:{},
+quests:[],last:Date.now()
+};
+
+function mode(){return modes[game.difficulty]||modes.normal}
+function mult(){return (1+game.crystals*.1)*biomes[game.biome][3]}
+function power(){
+ return (1+
+ tools.reduce((s,t,i)=>s+t[1]*game.tools[i],0)+
+ upgrades.reduce((s,u,i)=>s+u[2]*game.upgrades[i],0))
+ *mult()*mode().income;
+}
+function cps(){
+ return miners.reduce((s,m,i)=>s+m[1]*game.miners[i],0)
+ *mult()*mode().income;
+}
+function cost(base,count,rate=1.7){
+ return base*Math.pow(rate,count)*mode().price;
+}
+function notify(s){
+ $("toast").textContent=s;$("toast").style.display="block";
+ setTimeout(()=>$("toast").style.display="none",1800);
+}
+function log(s){
+ let a=JSON.parse(localStorage.getItem("mc2logs")||"[]");
+ a.unshift(s);a=a.slice(0,25);
+ localStorage.setItem("mc2logs",JSON.stringify(a));
+ $("logs").innerHTML=a.map(x=>"• "+x).join("<br>");
+}
+function chooseDifficulty(d){
+ if(!modes[d])return;
+ game.difficulty=d;
+ $("start").style.display="none";
+ log("Dificuldade escolhida: "+mode().name);
+ update();save(false);
+}
+function showDifficulty(){
+ $("difficulty").innerHTML=Object.keys(modes).map(k=>
+ `<button class="mode" onclick="chooseDifficulty('${k}')">
+ <b>${modes[k].name}</b><br>
+ <small>Preços x${modes[k].price} | Ganhos x${modes[k].income} | Chefes x${modes[k].boss}</small>
+ </button>`).join("");
+}
+function changeDifficulty(){
+ if(!confirm("Mudar dificuldade? Isso altera preços, ganhos e chefes."))return;
+ $("start").style.display="flex";showDifficulty();
+}
+
+function mine(){
+ let n=power();
+ game.coins+=n;game.total+=n;game.clicks++;
+ game.xp+=Math.max(.1,n/10)*mode().xp;
+ levelCheck();update();
+}
+function levelCheck(){
+ while(game.xp>=game.level*100){
+ game.xp-=game.level*100;game.level++;
+ notify("Novo nível: "+game.level);
+ log("Subiu para o nível "+game.level);
+ }
+}
+function buyTool(i){
+ let price=cost(30*Math.pow(4,i),game.tools[i]);
+ if(game.coins<price)return notify("Minérios insuficientes");
+ game.coins-=price;game.tools[i]++;
+ notify("Ferramenta comprada!");update();
+}
+function buyUpgrade(i){
+ let price=cost(upgrades[i][3],game.upgrades[i],2);
+ if(game.coins<price)return notify("Minérios insuficientes");
+ game.coins-=price;game.upgrades[i]++;
+ update();
+}
+function buyMiner(i){
+ let price=cost(miners[i][2],game.miners[i],1.85);
+ if(game.coins<price)return notify("Minérios insuficientes");
+ game.coins-=price;game.miners[i]++;
+ update();
+}
+function buyBiome(i){
+ let b=biomes[i];
+ if(game.unlocked.includes(i)){game.biome=i;update();return}
+ let price=b[2]*mode().price;
+ if(game.coins<price)return notify("Minérios insuficientes");
+ game.coins-=price;game.unlocked.push(i);game.biome=i;
+ log("Desbloqueou "+b[0]);notify("Novo bioma desbloqueado!");
+ update();
+}
+function renderTools(){
+ $("tools").innerHTML=tools.map((t,i)=>{
+ let price=cost(30*Math.pow(4,i),game.tools[i]);
+ return `<div class="item"><div><b>${t[0]}</b><small>+${t[1]} de força | Possui: ${game.tools[i]}<br>Preço: ${fmt(price)}</small></div><button ${game.coins<price?"disabled":""} onclick="buyTool(${i})">COMPRAR</button></div>`;
+ }).join("");
+}
+function renderUpgrades(){
+ $("upgrades").innerHTML=upgrades.map((u,i)=>{
+ let price=cost(u[3],game.upgrades[i],2);
+ return `<div class="item"><div><b>${u[0]}</b><small>${u[1]} | Nível ${game.upgrades[i]}<br>Preço: ${fmt(price)}</small></div><button ${game.coins<price?"disabled":""} onclick="buyUpgrade(${i})">COMPRAR</button></div>`;
+ }).join("");
+}
+function renderMiners(){
+ $("miners").innerHTML=miners.map((m,i)=>{
+ let price=cost(m[2],game.miners[i],1.85);
+ return `<div class="item"><div><b>${m[0]}</b><small>+${m[1]} por segundo<br>Possui: ${game.miners[i]} | Preço: ${fmt(price)}</small></div><button ${game.coins<price?"disabled":""} onclick="buyMiner(${i})">COMPRAR</button></div>`;
+ }).join("");
+}
+function renderBiomes(){
+ $("biomeList").innerHTML=biomes.map((b,i)=>{
+ let unlocked=game.unlocked.includes(i),price=b[2]*mode().price;
+ return `<div class="item"><div><b>${b[0]}</b><small>Multiplicador x${b[3]}<br>${unlocked?"Desbloqueado":"Preço: "+fmt(price)}</small></div><button onclick="buyBiome(${i})">${game.biome===i?"ATUAL":unlocked?"ENTRAR":"DESBLOQUEAR"}</button></div>`;
+ }).join("");
+}
+function renderBosses(){
+ $("bossList").innerHTML=bosses.map((b,i)=>{
+ let defeated=game.bosses.includes(i);
+ let hp=game.bossHP[i]??b[1]*mode().boss;
+ return `<div class="item" style="display:block"><b>${b[0]}</b>
+ <small>${defeated?"DERROTADO":"Vida: "+fmt(hp)+" / "+fmt(b[1]*mode().boss)}</small>
+ <div class="bar"><div style="width:${defeated?100:Math.max(0,100-hp/(b[1]*mode().boss)*100)}%"></div></div>
+ <button style="width:100%" ${defeated?"disabled":""} onclick="attackBoss(${i})">${defeated?"CONCLUÍDO":"ATACAR"}</button></div>`;
+ }).join("");
+}
+function attackBoss(i){
+ if(i>game.biome)return notify("Explore mais biomas antes!");
+ if(game.bosses.includes(i))return;
+ let hp=game.bossHP[i]??bosses[i][1]*mode().boss;
+ hp-=power();
+ if(hp<=0){
+ game.bosses.push(i);game.bossHP[i]=0;
+ let reward=bosses[i][2]*mode().income;
+ game.coins+=reward;game.total+=reward;
+ game.xp+=100*mode().xp;levelCheck();
+ notify("CHEFE DERROTADO! +"+fmt(reward));
+ log("Derrotou "+bosses[i][0]);
+ }else{
+ game.bossHP[i]=hp;notify("Ataque realizado! Vida restante: "+fmt(hp));
+ }
+ update();
+}
+const quests=[
+ ["Primeiro minerador","Faça 10 cliques",()=>game.clicks>=10,100],
+ ["Trabalhador","Faça 100 cliques",()=>game.clicks>=100,500],
+ ["Riqueza inicial","Acumule 10 mil minérios",()=>game.total>=10000,2000],
+ ["Explorador","Desbloqueie 3 biomas",()=>game.unlocked.length>=3,10000],
+ ["Exército","Compre 10 mineradores",()=>game.miners.reduce((a,b)=>a+b,0)>=10,25000],
+ ["Caçador","Derrote um chefe",()=>game.bosses.length>=1,50000],
+ ["Milionário","Acumule 1 milhão",()=>game.total>=1e6,100000],
+ ["Lenda","Desbloqueie o Nether",()=>game.unlocked.includes(7),500000]
+];
+function renderQuests(){
+ $("questList").innerHTML=quests.map((q,i)=>{
+ let done=q[2](),claimed=game.quests.includes(i);
+ return `<div class="item"><div><b>${q[0]}</b><small>${q[1]}<br>Prêmio: ${fmt(q[3])}</small></div><button ${!done||claimed?"disabled":""} onclick="claimQuest(${i})">${claimed?"CONCLUÍDA":done?"RECEBER":"BLOQUEADA"}</button></div>`;
+ }).join("");
+}
+function claimQuest(i){
+ if(game.quests.includes(i)||!quests[i][2]())return;
+ game.quests.push(i);game.coins+=quests[i][3];
+ notify("Missão concluída!");update();
+}
+function renderAchievements(){
+ let a=[
+ ["Primeiro clique",game.clicks>=1],
+ ["100 cliques",game.clicks>=100],
+ ["Mil cliques",game.clicks>=1000],
+ ["Primeiro milhão",game.total>=1e6],
+ ["Explorador",game.unlocked.length>=5],
+ ["Matador de chefes",game.bosses.length>=3],
+ ["Rei do End",game.bosses.length>=8],
+ ["Renascimento",game.prestiges>=1],
+ ["Lenda da mineração",game.total>=1e9]
+ ];
+ $("achievementList").innerHTML=a.map(x=>
+ `<div class="item"><b>${x[0]}</b><b>${x[1]?"CONQUISTADA":"BLOQUEADA"}</b></div>`
+ ).join("");
+}
+function prestige(){
+ let earned=Math.floor(Math.sqrt(game.total/1e7));
+ let reward=earned-game.crystals;
+ if(reward<=0)return notify("Você ainda não tem cristais suficientes!");
+ if(!confirm("Receber "+reward+" cristais e reiniciar sua mineração?"))return;
+ game.crystals+=reward;game.prestiges++;
+ game.coins=0;game.total=0;game.clicks=0;game.xp=0;game.level=1;
+ game.tools=Array(8).fill(0);game.upgrades=Array(6).fill(0);
+ game.miners=Array(7).fill(0);game.biome=0;game.unlocked=[0];
+ game.bosses=[];game.bossHP={};game.quests=[];
+ log("Prestígio realizado: "+reward+" cristais");
+ update();
+}
+function update(){
+ $("coins").textContent=fmt(game.coins);
+ $("cps").textContent=fmt(cps());
+ $("power").textContent=fmt(power());
+ $("level").textContent=game.level;
+ $("difficultyLabel").textContent="Dificuldade: "+mode().name;
+ $("block").className="block "+biomes[game.biome][1];
+ $("biomeName").textContent=biomes[game.biome][0];
+ $("blockName").textContent="Bloco: "+biomes[game.biome][0];
+ $("xpbar").style.width=Math.min(100,game.xp/(game.level*100)*100)+"%";
+ $("xptext").textContent="XP "+fmt(game.xp)+" / "+game.level*100;
+ $("crystals").textContent=game.crystals;
+ let possible=Math.floor(Math.sqrt(game.total/1e7));
+ $("prestigeInfo").textContent="Cristais disponíveis: "+Math.max(0,possible-game.crystals)+" | Bônus de mineração: "+game.crystals*10+"%";
+ $("stats").innerHTML=
+ "Total minerado: "+fmt(game.total)+"<br>"+
+ "Cliques: "+fmt(game.clicks)+"<br>"+
+ "Mineradores: "+game.miners.reduce((a,b)=>a+b,0)+"<br>"+
+ "Biomas: "+game.unlocked.length+"/"+biomes.length+"<br>"+
+ "Chefes derrotados: "+game.bosses.length+"/"+bosses.length+"<br>"+
+ "Prestígios: "+game.prestiges;
+ renderTools();renderUpgrades();renderMiners();
+ renderBiomes();renderBosses();renderQuests();renderAchievements();
+}
+function tab(id,btn){
+ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));
+ $(id).classList.add("active");btn.classList.add("active");
+}
+function save(show=true){
+ game.last=Date.now();
+ localStorage.setItem("mc_clicker_2",JSON.stringify(game));
+ if(show)notify("Jogo salvo!");
+}
+function load(){
+ try{
+ let s=JSON.parse(localStorage.getItem("mc_clicker_2"));
+ if(s){
+ game={...game,...s};
+ let elapsed=Math.min(43200,Math.max(0,(Date.now()-(game.last||Date.now()))/1000));
+ let offline=cps()*elapsed;
+ game.coins+=offline;
+ game.total+=offline;
+ }
+ }catch(e){console.log(e)}
+}
+function exportSave(){
+ prompt("Copie seu código de salvamento:",btoa(unescape(encodeURIComponent(JSON.stringify(game)))));
+}
+function importSave(){
+ let s=prompt("Cole seu código:");
+ if(!s)return;
+ try{
+ let data=JSON.parse(decodeURIComponent(escape(atob(s))));
+ if(!data.tools||!data.difficulty)throw Error();
+ game={...game,...data};
+ save(false);
+ update();
+ notify("Progresso importado!");
+ }catch(e){notify("Código inválido!")}
+}
+function resetGame(){
+ if(!confirm("Apagar todo o progresso?"))return;
+ localStorage.removeItem("mc_clicker_2");
+ localStorage.removeItem("mc2logs");
+ location.reload();
+}
+
+load();
+$("logs").innerHTML=(JSON.parse(localStorage.getItem("mc2logs")||"[]")).map(x=>"• "+x).join("<br>");
+showDifficulty();
+if(game.difficulty){$("start").style.display="none"}
+update();
+
+setInterval(()=>{
+ let gain=cps();
+ game.coins+=gain;
+ game.total+=gain;
+ if(gain>0)update();
+},1000);
+
+setInterval(()=>save(false),15000);
+</script>
+</body>
+</html>
